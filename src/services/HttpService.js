@@ -1,10 +1,14 @@
 import { log } from '@/services/LoggerService';
 
 const LOG_PREFIX = 'HttpService';
-const API_URL = 'https://api.class.fabiangrosch.de/v1';
+const API_URL = 'https://api.cp.dev101.de/v1';
 
 
 async function fetchData(path = '/', options = {}) {
+    options = {
+        ...options,
+        credentials: 'include',
+    };
     try {
         const response = await fetch(API_URL + path, options);
         // Return json if there is a body, otherwise return null
