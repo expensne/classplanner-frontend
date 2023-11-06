@@ -1,61 +1,22 @@
 <template>
     <tr>
+        <td>{{ name }}</td>
+        <td>{{ maxPoints }}</td>
         <td>
-            {{ name }}
-        </td>
-        <td>
-            <v-tooltip :text="scoreTooltipText">
+            <v-tooltip
+                v-for="grade in gradeOrder"
+                :key="grade"
+                :text="gradeInfo[grade].label"
+                location="top"
+            >
                 <template v-slot:activator="{ props }">
-                    <p v-bind="props">
-                        <v-dialog width="500">
-                            <!-- Info Button -->
-                            <template v-slot:activator="{ props }">
-                                <v-btn
-                                    class="elevation-0 px-0"
-                                    v-bind="props"
-                                    density="compact"
-                                    :text="maxScore.toString()"
-                                    append-icon="mdi-information-outline"
-                                ></v-btn>
-                            </template>
-
-                            <!-- Dialog Content -->
-                            <template v-slot:default="{ isActive }">
-                                <v-card :title="name">
-                                    <v-card-text>
-                                        <div>
-                                            <b>Max Score: {{ maxScore }}</b>
-                                        </div>
-                                        <br />
-                                        <div>
-                                            <b>Grading Scale:</b>
-                                        </div>
-                                        <div
-                                            v-for="(
-                                                text, index
-                                            ) in scoreTooltipText.split(', ')"
-                                            :key="index"
-                                        >
-                                            {{ text }}
-                                        </div>
-                                    </v-card-text>
-
-                                    <v-card-actions>
-                                        <v-spacer></v-spacer>
-                                        <v-btn
-                                            text="Close Dialog"
-                                            color="error"
-                                            variation="outlined"
-                                            @click="isActive.value = false"
-                                        ></v-btn>
-                                    </v-card-actions>
-                                </v-card>
-                            </template>
-                        </v-dialog>
-                    </p>
+                    <v-chip class="ma-1" :color="gradeInfo[grade].color" variant="outlined" v-bind="props">
+                        {{ gradingScale[grade] }}
+                    </v-chip>
                 </template>
             </v-tooltip>
         </td>
+
         <td>
             <div class="d-flex">
                 <v-btn
@@ -76,8 +37,12 @@
 </template>
 
 <script>
+import { GRADE_ORDER, GRADE_INFO } from "@/utils/constants";
+
 export default {
-    name: 'ExamsListRow',
+    name: "ExamsListRow",
+
+    emits: ["editClicked", "deleteClicked"],
 
     props: {
         id: {
@@ -88,44 +53,30 @@ export default {
             type: String,
             required: true
         },
-        maxScore: {
+        maxPoints: {
             type: Number,
             required: true
         },
         gradingScale: {
-            type: Array,
+            type: Object,
             required: true
         }
     },
 
-    emits: ['editClicked', 'deleteClicked'],
+    data() {
+        return {
+            gradeOrder: GRADE_ORDER,
+            gradeInfo: GRADE_INFO
+        };
+    },
 
     methods: {
         editClicked() {
-            this.$emit('editClicked', this.id);
+            this.$emit("editClicked", this.id);
         },
         deleteClicked() {
-            this.$emit('deleteClicked', this.id);
-        }
-    },
-
-    computed: {
-        scoreTooltipText() {
-            return this.gradingScale
-                .map(
-                    (percent, index) =>
-                        `${(percent * this.maxScore) / 100.0} (${percent}%) = ${
-                            index + 1
-                        }`
-                )
-                .join(', ');
+            this.$emit("deleteClicked", this.id);
         }
     }
 };
 </script>
-
-<style scoped>
-.tooltip-inner {
-    white-space: pre-line;
-}
-</style>
