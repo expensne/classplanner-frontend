@@ -1,8 +1,10 @@
 <template>
     <v-container class="pa-0">
-        <v-row v-for="(_, index) in percents" :key="index" dense>
+        <v-row v-for="grade in gradeOrder" :key="grade" dense>
             <v-col class="align-self-center">
-                <v-icon :icon="`mdi-numeric-${index + 1}-box`"></v-icon>
+                <v-chip class="ma-0" :color="gradeInfo[grade].color" variant="outlined">
+                    {{ gradeInfo[grade].label }}
+                </v-chip>
             </v-col>
 
             <v-col cols="5">
@@ -11,7 +13,7 @@
                     variant="underlined"
                     type="number"
                     required
-                    v-model.number="scores[index]"
+                    v-model.number="scores[grade.name]"
                     :rules="scoreValueRules"
                     @input="handleScoreChange"
                 ></v-text-field>
@@ -24,7 +26,7 @@
                     variant="underlined"
                     type="number"
                     required
-                    v-model.number="editablePercents[index]"
+                    v-model.number="editablePercents[grade.name]"
                     :rules="percentValueRules"
                     @input="handlePercentChange"
                 ></v-text-field>
@@ -47,102 +49,112 @@
 </template>
 
 <script scoped>
+import { GRADE_ORDER, GRADE_INFO } from "@/utils/constants";
+
 export default {
-    name: 'GradingScaleForm',
+    name: "GradingScaleForm",
+
+    emits: ["update:percents"],
 
     props: {
-        maxScore: {
+        maxPoints: {
             type: Number,
             required: true
         },
         percents: {
-            type: Array,
+            type: Object,
             required: true
         }
     },
 
-    emits: ['update:percents'],
-
     data() {
         return {
+            gradeOrder: GRADE_ORDER,
+            gradeInfo: GRADE_INFO,
             editablePercents: null,
             scores: null,
-            scoreValueRules: [(value) => this.isValidScore(value)],
-            percentValueRules: [(value) => this.isValidPercent(value)]
+            scoreValueRules: [
+                (value) => this.isValidScore(value) && this.isValidOrder(this.scores)
+            ],
+            percentValueRules: [
+                (value) => this.isValidPercent(value) && this.isValidOrder(this.percents)
+            ]
         };
     },
 
     created() {
-        this.setDefaults();
+        this.initScoresFrom(this.percents);
     },
 
     methods: {
-        setDefaults() {
-            let defaults = this.percents;
-
-            this.scores = new Array(defaults.length);
-            this.editablePercents = defaults.slice();
-            this.scores = this.getScores(defaults);
+        initScoresFrom(percents) {
+            this.editablePercents = JSON.parse(JSON.stringify(percents));
+            this.scores = this.percentsToScores(percents);
         },
         handleReset() {
-            this.setDefaults();
+            this.initScoresFrom(this.percents);
         },
-        getScores(percents) {
-            let scores = new Array(percents.length);
-            for (let i = 0; i < percents.length; i++)
-                scores[i] = Math.round((percents[i] * this.maxScore) / 100.0);
+
+        // Transforms
+        percentsToScores(percents) {
+            let scores = {};
+            for (const [key, value] of Object.entries(percents)) {
+                scores[key] = Math.round((value * this.maxPoints) / 100.0);
+            }
             return scores;
         },
-        getPercents(scores) {
-            let percents = new Array(scores.length);
-            for (let i = 0; i < scores.length; i++)
-                percents[i] = Math.round((scores[i] * 100.0) / this.maxScore);
+        scoresToPercents(scores) {
+            let percents = {};
+            for (const [key, value] of Object.entries(scores)) {
+                percents[key] = Math.round((value * 100.0) / this.maxPoints);
+            }
             return percents;
         },
+
+        // Validation
         isValidScore(value) {
             if (value == null) return false;
             value = Number(value);
-            if (isNaN(value) || value < 0 || value > this.maxScore) return false;
-            // scores must be in descending order
-            let orderOkay = true;
-            for (let i = 1; i < this.scores.length; i++) {
-                if (this.scores[i] >= this.scores[i - 1]) {
-                    orderOkay = false;
-                    break;
-                }
-            }
-            return orderOkay;
+            if (isNaN(value) || value < 0 || value > this.maxPoints) return false;
+            return true;
         },
         isValidPercent(value) {
             if (value == null) return false;
             value = Number(value);
             if (isNaN(value) || value < 0 || value > 100) return false;
-            // percents must be in descending order
-            let orderOkay = true;
-            for (let i = 1; i < this.percents.length; i++) {
-                if (this.percents[i] >= this.percents[i - 1]) {
-                    orderOkay = false;
+            return true;
+        },
+        isValidOrder(arr) {
+            let orderKeys = ["A", "B", "C", "D", "E", "F"];
+            let orderIsValid = true;
+            for (let i = 1; i < orderKeys.length; i++) {
+                if (arr[orderKeys[i]] >= arr[orderKeys[i - 1]]) {
+                    orderIsValid = false;
                     break;
                 }
             }
-            return orderOkay;
+            return orderIsValid;
         },
+
+        // Event handlers
         handlePercentChange(event) {
             let value = event.srcElement.valueAsNumber;
             if (!this.isValidPercent(value)) return;
-            this.scores = this.getScores(this.percents);
+            if (!this.isValidOrder(this.percents)) return;
+            this.scores = this.percentsToScores(this.percents);
         },
         handleScoreChange(event) {
             let value = event.srcElement.valueAsNumber;
             if (!this.isValidScore(value)) return;
-            this.editablePercents = this.getPercents(this.scores);
+            if (!this.isValidOrder(this.scores)) return;
+            this.editablePercents = this.scoresToPercents(this.scores);
         }
     },
 
     watch: {
         editablePercents: {
             handler: function (newVal) {
-                this.$emit('update:percents', newVal);
+                this.$emit("update:percents", newVal);
             },
             deep: true
         }

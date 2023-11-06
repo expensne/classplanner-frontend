@@ -3,7 +3,8 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Max Score</th>
+                <th>Max Points</th>
+                <th>Grading Scale (%)</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -14,7 +15,7 @@
                 :key="item.id"
                 :id="item.id"
                 :name="item.name"
-                :maxScore="item.maxScore"
+                :maxPoints="item.maxPoints"
                 :gradingScale="item.gradingScale"
                 @editClicked="handleEdit"
                 @deleteClicked="handleDelete"

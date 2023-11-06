@@ -5,29 +5,29 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            name: 'home',
-            component: () => import('@/views/HomeView.vue')
+            name: 'table',
+            component: () => import('@/pages/TablePage.vue')
         },
 
         {
             path: '/students',
             name: 'students',
-            component: () => import('@/views/MainStudentsView.vue'),
+            component: () => import('@/pages/MainStudentsPage.vue'),
             children: [
                 {
                     path: '',
                     name: 'students-list',
-                    component: () => import('@/views/StudentsListView.vue')
+                    component: () => import('@/pages/students/StudentsPage.vue')
                 },
                 {
                     path: ':id',
                     name: 'students-edit',
-                    component: () => import('@/views/StudentView.vue')
+                    component: () => import('@/pages/students/StudentPage.vue')
                 },
                 {
                     path: 'add',
                     name: 'students-add',
-                    component: () => import('@/views/StudentView.vue')
+                    component: () => import('@/pages/students/StudentPage.vue')
                 }
             ]
         },
@@ -35,22 +35,22 @@ const router = createRouter({
         {
             path: '/exams',
             name: 'exams',
-            component: () => import('@/views/MainExamsView.vue'),
+            component: () => import('@/pages/MainExamsPage.vue'),
             children: [
                 {
                     path: '',
                     name: 'exams-list',
-                    component: () => import('@/views/ExamsListView.vue')
+                    component: () => import('@/pages/exams/ExamsPage.vue')
                 },
                 {
                     path: ':id',
                     name: 'exams-edit',
-                    component: () => import('@/views/ExamView.vue')
+                    component: () => import('@/pages/exams/ExamPage.vue')
                 },
                 {
                     path: 'add',
                     name: 'exams-add',
-                    component: () => import('@/views/ExamView.vue')
+                    component: () => import('@/pages/exams/ExamPage.vue')
                 }
             ]
         }

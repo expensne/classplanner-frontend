@@ -1,16 +1,18 @@
 <template>
-    <BaseNavbar />
-    <router-view />
+    <MainLayout>
+        <router-view></router-view>
+    </MainLayout>
 </template>
 
 <script>
-import { useStudentsStore } from '@/stores/StudentsStore';
-import { useExamsStore } from '@/stores/ExamsStore';
+import { useStudentsStore } from "@/stores/students";
+import { useExamsStore } from "@/stores/exams";
 
-import BaseNavbar from '@/components/BaseNavbar.vue';
+import MainLayout from "@/layouts/MainLayout.vue";
 
 export default {
-    name: 'App',
+    name: "App",
+
     setup() {
         const studentsStore = useStudentsStore();
         const examsStore = useExamsStore();
@@ -18,6 +20,6 @@ export default {
         studentsStore.fetchStudents();
         examsStore.fetchExams();
     },
-    components: { BaseNavbar }
+    components: { MainLayout }
 };
 </script>

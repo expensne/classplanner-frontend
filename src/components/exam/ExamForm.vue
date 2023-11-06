@@ -9,21 +9,21 @@
             :rules="nameRules"
         ></v-text-field>
         <v-text-field
-            v-model.number="editableExam.maxScore"
-            label="Max Score"
+            v-model.number="editableExam.maxPoints"
+            label="Max Points"
             required
             variant="outlined"
             type="number"
-            :rules="maxScoreRules"
+            :rules="maxPointsRules"
             v-bind:disabled="isEditingGradingScale"
         ></v-text-field>
 
-        <v-expansion-panels v-model="panelIndex" variant="popout">
+        <v-expansion-panels v-model="panelIndex" class="mb-5">
             <v-expansion-panel>
                 <v-expansion-panel-title>Grading Scale</v-expansion-panel-title>
                 <v-expansion-panel-text>
                     <GradingScaleForm
-                        :max-score="editableExam.maxScore"
+                        :maxPoints="editableExam.maxPoints"
                         v-model:percents="editableExam.gradingScale"
                     />
                 </v-expansion-panel-text>
@@ -38,14 +38,14 @@
 </template>
 
 <script scoped>
-import GradingScaleForm from '@/components/exam/GradingScaleForm.vue';
+import GradingScaleForm from "@/components/exam/GradingScaleForm.vue";
 
 export default {
-    name: 'ExamForm',
+    name: "ExamForm",
 
     components: { GradingScaleForm },
 
-    emits: ['onSubmit', 'onCancel'],
+    emits: ["onSubmit", "onCancel"],
 
     props: {
         exam: {
@@ -62,15 +62,15 @@ export default {
             nameRules: [
                 (value) => {
                     if (value) return true;
-                    return 'Name cannot be empty.';
+                    return "Name cannot be empty.";
                 }
             ],
-            maxScoreRules: [
+            maxPointsRules: [
                 (value) => {
-                    if (!value) return 'Max score cannot be empty.';
+                    if (!value) return "Max score cannot be empty.";
                     value = Number(value);
-                    if (isNaN(value)) return 'Max score must be a number.';
-                    if (value < 0) return 'Max score cannot be negative.';
+                    if (isNaN(value)) return "Max score must be a number.";
+                    if (value < 0) return "Max score cannot be negative.";
                     return true;
                 }
             ]
@@ -90,13 +90,11 @@ export default {
     methods: {
         handleSubmit() {
             if (!this.valid) return;
-            this.$emit('onSubmit', this.editableExam);
+            this.$emit("onSubmit", this.editableExam);
         },
         handleCancel() {
-            this.$emit('onCancel');
+            this.$emit("onCancel");
         }
     }
 };
 </script>
-
-// TODO: max points to possible points
