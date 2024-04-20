@@ -60,7 +60,7 @@ export const useStudentsStore = defineStore("studentsStore", {
             }
 
             // Add on server
-            const student = await addItem("/students/", {
+            const student = await addItem("/students", {
                 firstName,
                 lastName,
                 scores: {}
